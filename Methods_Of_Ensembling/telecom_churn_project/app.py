@@ -19,10 +19,10 @@ MODEL_PATH = BASE_DIR / "models" / "random_forest.joblib"
 
 # 3. Page Configuration
 st.set_page_config(
-    page_title="Telco Churn Predictor", page_icon="🔮", layout="wide"
+    page_title="Telecommunication Customer Prediction", page_icon="🔮", layout="wide"
 )
 
-st.title("📊 Telco Customer Churn Predictor & Explainability Engine")
+st.title("📊 Telecom Customer Predictor ")
 st.write(
     "Adjust customer features on the sidebar to get real-time churn risk predictions and SHAP decision breakdowns."
 )
@@ -108,7 +108,7 @@ input_df = pd.DataFrame(
 )
 
 # 6. Prediction & Output
-if st.button("🚀 Analyze Churn Risk", type="primary"):
+if st.button("🚀 Analyze if customer leaves", type="primary"):
     churn_proba = pipeline.predict_proba(input_df)[0][1]
 
     col1, col2 = st.columns([1, 2])
@@ -118,7 +118,7 @@ if st.button("🚀 Analyze Churn Risk", type="primary"):
         st.metric(label="Churn Probability", value=f"{churn_proba:.1%}")
 
         if churn_proba >= 0.50:
-            st.error("⚠️ High Risk: Customer is likely to churn!")
+            st.error("⚠️ High Risk: Customer is likely to leave the company!")
         else:
             st.success("✅ Low Risk: Customer is likely to stay.")
 
