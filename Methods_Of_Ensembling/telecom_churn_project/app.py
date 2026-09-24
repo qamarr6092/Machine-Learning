@@ -1,14 +1,23 @@
 from pathlib import Path
+import sys
 import joblib
 import pandas as pd
 import streamlit as st
+
+# 1. Resolve Dynamic Directory Paths & append to sys.path
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.append(str(BASE_DIR))
+
+# 2. Import Custom Modules
+# Use 'import src.preprocess' if file is src/preprocess.py,
+# or 'import src.preprocessing' if file is src/preprocessing.py
+import src.preprocess
 from src.evaluate import plot_shap
 
-# 1. Resolve Dynamic Directory Paths (Works locally and on Streamlit Cloud)
-BASE_DIR = Path(__file__).resolve().parent
 MODEL_PATH = BASE_DIR / "models" / "random_forest.joblib"
 
-# 2. Page Configuration
+# 3. Page Configuration
 st.set_page_config(
     page_title="Telco Churn Predictor", page_icon="🔮", layout="wide"
 )
@@ -19,7 +28,7 @@ st.write(
 )
 
 
-# 3. Load Model Pipeline
+# 4. Load Model Pipeline
 @st.cache_resource
 def load_model():
     return joblib.load(MODEL_PATH)
@@ -33,7 +42,7 @@ except Exception as e:
     )
     st.stop()
 
-# 4. Sidebar Input Form
+# 5. Sidebar Input Form
 st.sidebar.header("📋 Customer Profile")
 
 tenure = st.sidebar.slider("Tenure (Months)", 1, 72, 12)
@@ -98,7 +107,7 @@ input_df = pd.DataFrame(
     ]
 )
 
-# 5. Prediction & Output
+# 6. Prediction & Output
 if st.button("🚀 Analyze Churn Risk", type="primary"):
     churn_proba = pipeline.predict_proba(input_df)[0][1]
 
@@ -116,6 +125,5 @@ if st.button("🚀 Analyze Churn Risk", type="primary"):
     with col2:
         st.subheader("Model Decision Breakdown (SHAP)")
         with st.spinner("Generating SHAP explanation..."):
-            # Calls plot_shap from src/evaluate.py
             fig = plot_shap(pipeline, input_df)
             st.pyplot(fig)
