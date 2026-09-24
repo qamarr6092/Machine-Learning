@@ -67,7 +67,7 @@ with st.sidebar.expander("💳 Account & Billing", expanded=True):
         ],
     )
     monthly_charges = st.number_input(
-        "Monthly Charges ($)", min_value=18.0, max_value=120.0, value=65.0, step=1.0
+        "Monthly Charges ($)", min_value=0, max_value=120.0, value=65.0, step=1.0
     )
     
     # Auto-calculates default baseline, but allows full continuous numeric input/editing
