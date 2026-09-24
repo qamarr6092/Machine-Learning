@@ -10,8 +10,6 @@ if str(BASE_DIR) not in sys.path:
     sys.path.append(str(BASE_DIR))
 
 # 2. Import Custom Modules
-# Use 'import src.preprocess' if file is src/preprocess.py,
-# or 'import src.preprocessing' if file is src/preprocessing.py
 import src.preprocess
 from src.evaluate import plot_shap
 
@@ -22,9 +20,9 @@ st.set_page_config(
     page_title="Telecommunication Customer Prediction", page_icon="🔮", layout="wide"
 )
 
-st.title("📊 Telecom Customer Predictor ")
+st.title("📊 Telecom Customer Predictor")
 st.write(
-    "Adjust customer features on the sidebar to get real-time churn risk predictions and SHAP decision breakdowns."
+    "Adjust customer features on the sidebar to get real-time customer predictions and SHAP decision breakdowns."
 )
 
 
@@ -42,45 +40,55 @@ except Exception as e:
     )
     st.stop()
 
-# 5. Sidebar Input Form
+# 5. Sidebar Input Form (Organized in Expanders)
 st.sidebar.header("📋 Customer Profile")
 
-tenure = st.sidebar.slider("Tenure (Months)", 1, 72, 12)
-contract = st.sidebar.selectbox(
-    "Contract Type", ["Month-to-month", "One year", "Two year"]
-)
-internet_service = st.sidebar.selectbox(
-    "Internet Service", ["Fiber optic", "DSL", "No"]
-)
-monthly_charges = st.sidebar.number_input(
-    "Monthly Charges ($)", 18.0, 120.0, 65.0
-)
-total_charges = tenure * monthly_charges
+# --- Demographics ---
+with st.sidebar.expander("👤 Demographics", expanded=True):
+    gender = st.selectbox("Gender", ["Male", "Female"])
+    senior_citizen = st.selectbox("Senior Citizen", [0, 1])
+    partner = st.selectbox("Partner", ["No", "Yes"])
+    dependents = st.selectbox("Dependents", ["No", "Yes"])
 
-payment_method = st.sidebar.selectbox(
-    "Payment Method",
-    [
-        "Electronic check",
-        "Mailed check",
-        "Bank transfer (automatic)",
-        "Credit card (automatic)",
-    ],
-)
-paperless_billing = st.sidebar.selectbox("Paperless Billing", ["Yes", "No"])
-tech_support = st.sidebar.selectbox(
-    "Tech Support", ["No", "Yes", "No internet service"]
-)
-online_security = st.sidebar.selectbox(
-    "Online Security", ["No", "Yes", "No internet service"]
-)
+# --- Account & Billing (Numeric & Contract Controls) ---
+with st.sidebar.expander("💳 Account & Billing", expanded=True):
+    tenure = st.slider("Tenure (Months)", min_value=0, max_value=72, value=12)
+    contract = st.selectbox(
+        "Contract Type", ["Month-to-month", "One year", "Two year"]
+    )
+    paperless_billing = st.selectbox("Paperless Billing", ["Yes", "No"])
+    payment_method = st.selectbox(
+        "Payment Method",
+        [
+            "Electronic check",
+            "Mailed check",
+            "Bank transfer (automatic)",
+            "Credit card (automatic)",
+        ],
+    )
+    monthly_charges = st.number_input(
+        "Monthly Charges ($)", min_value=18.0, max_value=120.0, value=65.0, step=1.0
+    )
+    
+    # Auto-calculates default baseline, but allows full continuous numeric input/editing
+    default_total = float(tenure * monthly_charges)
+    total_charges = st.number_input(
+        "Total Charges ($)", min_value=0.0, max_value=10000.0, value=default_total, step=10.0
+    )
 
-# Demographics
-gender = st.sidebar.selectbox("Gender", ["Male", "Female"])
-senior_citizen = st.sidebar.selectbox("Senior Citizen", [0, 1])
-partner = st.sidebar.selectbox("Partner", ["No", "Yes"])
-dependents = st.sidebar.selectbox("Dependents", ["No", "Yes"])
+# --- Telecom Services ---
+with st.sidebar.expander("🛠 Services & Add-ons", expanded=False):
+    phone_service = st.selectbox("Phone Service", ["Yes", "No"])
+    multiple_lines = st.selectbox("Multiple Lines", ["No", "Yes", "No phone service"])
+    internet_service = st.selectbox("Internet Service", ["Fiber optic", "DSL", "No"])
+    online_security = st.selectbox("Online Security", ["No", "Yes", "No internet service"])
+    online_backup = st.selectbox("Online Backup", ["No", "Yes", "No internet service"])
+    device_protection = st.selectbox("Device Protection", ["No", "Yes", "No internet service"])
+    tech_support = st.selectbox("Tech Support", ["No", "Yes", "No internet service"])
+    streaming_tv = st.selectbox("Streaming TV", ["No", "Yes", "No internet service"])
+    streaming_movies = st.selectbox("Streaming Movies", ["No", "Yes", "No internet service"])
 
-# Construct input row matching exact raw column names from training
+# Construct input row matching all 19 raw features from training
 input_df = pd.DataFrame(
     [
         {
@@ -89,15 +97,15 @@ input_df = pd.DataFrame(
             "Partner": partner,
             "Dependents": dependents,
             "tenure": tenure,
-            "PhoneService": "Yes",
-            "MultipleLines": "No",
+            "PhoneService": phone_service,
+            "MultipleLines": multiple_lines,
             "InternetService": internet_service,
             "OnlineSecurity": online_security,
-            "OnlineBackup": "No",
-            "DeviceProtection": "No",
+            "OnlineBackup": online_backup,
+            "DeviceProtection": device_protection,
             "TechSupport": tech_support,
-            "StreamingTV": "No",
-            "StreamingMovies": "No",
+            "StreamingTV": streaming_tv,
+            "StreamingMovies": streaming_movies,
             "Contract": contract,
             "PaperlessBilling": paperless_billing,
             "PaymentMethod": payment_method,

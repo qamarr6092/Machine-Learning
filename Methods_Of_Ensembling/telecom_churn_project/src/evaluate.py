@@ -82,7 +82,7 @@ def plot_shap(pipeline, customer):
 
     fig, ax = plt.subplots(figsize=(8, 5))
     shap.plots.waterfall(shap_values[0, :, 1], show=False)
-    plt.title('Customer Churn Risk Factors', fontsize=12, pad=15)
+    plt.title('Customer Risk Factors', fontsize=12, pad=15)
     plt.tight_layout()
 
     return fig    
