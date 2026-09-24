@@ -1,9 +1,14 @@
+from pathlib import Path
 import joblib
 import pandas as pd
 import streamlit as st
 from src.evaluate import plot_shap
 
-# 1. Page Configuration
+# 1. Resolve Dynamic Directory Paths (Works locally and on Streamlit Cloud)
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "models" / "random_forest.joblib"
+
+# 2. Page Configuration
 st.set_page_config(
     page_title="Telco Churn Predictor", page_icon="🔮", layout="wide"
 )
@@ -14,22 +19,21 @@ st.write(
 )
 
 
-# 2. Load Model Pipeline
+# 3. Load Model Pipeline
 @st.cache_resource
 def load_model():
-    # Update this filename if your saved model in models/ uses a different name
-    return joblib.load("models/random_forest.joblib")
+    return joblib.load(MODEL_PATH)
 
 
 try:
     pipeline = load_model()
 except Exception as e:
     st.error(
-        f"Could not load model file from models/ directory. Error details: {e}"
+        f"Could not load model file from '{MODEL_PATH}'. Error details: {e}"
     )
     st.stop()
 
-# 3. Sidebar Input Form
+# 4. Sidebar Input Form
 st.sidebar.header("📋 Customer Profile")
 
 tenure = st.sidebar.slider("Tenure (Months)", 1, 72, 12)
@@ -94,7 +98,7 @@ input_df = pd.DataFrame(
     ]
 )
 
-# 4. Prediction & Output
+# 5. Prediction & Output
 if st.button("🚀 Analyze Churn Risk", type="primary"):
     churn_proba = pipeline.predict_proba(input_df)[0][1]
 
