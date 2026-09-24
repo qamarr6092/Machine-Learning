@@ -57,7 +57,7 @@ def preprocess_data(df_filepath):
             (
                 'numeric_transform',
                 make_pipeline(
-                    SimpleImputer(strategy='median'), StandardScaler()
+                    SimpleImputer(strategy='median')
                 ),
                 numeric_columns,
             ),
